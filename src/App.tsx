@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { Sandpack } from '@codesandbox/sandpack-react'
-import { 
+import {
+  SandpackProvider,
+  SandpackCodeEditor,
+  SandpackPreview,
+  SandpackConsole
+} from '@codesandbox/sandpack-react'
+import {
   sandpackDark,
   nightOwl,
   atomDark,
@@ -181,6 +186,7 @@ const THEMES = {
 function App() {
   const [activeFramework, setActiveFramework] = useState<Framework>('react')
   const [activeTheme, setActiveTheme] = useState('sandpackDark')
+  const [showConsole, setShowConsole] = useState(false)
 
   return (
     <div className="app">
@@ -216,35 +222,63 @@ function App() {
       </header>
       
       <main className="editor-container">
-        <Sandpack
+        <SandpackProvider
           template={activeFramework}
           theme={THEMES[activeTheme as keyof typeof THEMES]}
           files={TEMPLATES[activeFramework]}
           options={{
             autorun: true,
             autoReload: false,
-            showLineNumbers: true,
-            showInlineErrors: true,
-            showRefreshButton: true,
-            // showNavigator: true,
-            showTabs: true,
-            editorHeight: 800,
-            showConsole: false,
-            showConsoleButton: true,
-            editorWidthPercentage: 50,
-            visibleFiles: Object.keys(TEMPLATES[activeFramework]),
-            classes: {
-              'sp-wrapper': 'custom-wrapper',
-              'sp-editor': 'custom-editor',
-              'sp-tab-button': 'custom-tab',
-              'sp-preview': 'custom-preview',
-              'sp-file-explorer': 'custom-explorer'
-            }
+            bundlerURL: 'https://baidu.com/',
+            visibleFiles: Object.keys(TEMPLATES[activeFramework])
           }}
           customSetup={{
             dependencies: {}
           }}
-        />
+        >
+          <div className="workspace">
+            <div className="pane editor-pane">
+              <SandpackCodeEditor
+                showInlineErrors
+                showLineNumbers
+                showTabs
+                wrapContent
+                style={{ height: '100%' }}
+              />
+            </div>
+
+            <div className="pane preview-pane">
+              <div className="preview-toolbar">
+                <button
+                  type="button"
+                  className="console-toggle"
+                  onClick={() => setShowConsole((prev) => !prev)}
+                  aria-pressed={showConsole}
+                >
+                  {showConsole ? '隐藏控制台' : '显示控制台'}
+                </button>
+                <span className="preview-label">预览</span>
+              </div>
+
+              <div className="preview-content">
+                <SandpackPreview
+                  showNavigator
+                  showRefreshButton
+                  className="custom-preview"
+                  startRoute='/aabb/'
+                />
+              </div>
+
+              <div
+                className={`console-container ${
+                  showConsole ? 'is-visible' : ''
+                }`}
+              >
+                <SandpackConsole showHeader={false} />
+              </div>
+            </div>
+          </div>
+        </SandpackProvider>
       </main>
     </div>
   )
